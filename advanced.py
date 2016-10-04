@@ -259,4 +259,6 @@ def advanced1(grid):
                         if grid[(r, c)] == 0:
                             grid[(r, c)] = 1
                             min_visit.append([r, c])
-                            h = (len(count_two_in_rows_opponent(grid)) - len(count_two_in_rows_player(grid)))     
+                            h = (len(count_two_in_rows_opponent(grid)) - len(count_two_in_rows_player(grid)))  
+                            
+                            
