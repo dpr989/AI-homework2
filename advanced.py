@@ -183,6 +183,9 @@ def maximum_value(list):
             return max
 
 
+
+
+
 def advanced(grid):
     global max_visit
     global min_visit
@@ -204,7 +207,7 @@ def advanced(grid):
                             min_visit.append([r, c])
                             #Check if min
                             h = (len(count_two_in_rows_opponent(grid)) - len(count_two_in_rows_player(grid)))
-                 
+
                             min_list.append(h)
                             grid[(r, c)] = 0
                             min_visit.pop()
@@ -240,3 +243,8 @@ def beginner_vs_advanced(grid):
 
 
 beginner_vs_advanced(grid)
+
+
+
+
+
