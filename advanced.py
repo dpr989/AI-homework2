@@ -1,16 +1,18 @@
 import random
+import time
 
+#Create grid and init each cell to 0
 grid = {}
 for row in range(1,5):
     for column in range(1,5):
         grid[(row, column)] = 0
 
 
-
+#Global lists for tracking cells visited
 beginner_visit = []
 advanced_visit = []
 
-
+#Code which defines the behavour of  beginner player
 def beginner(grid):
     global beginner_visit
     global advanced_visit
@@ -26,7 +28,7 @@ def beginner(grid):
                 if grid[(row, col)] == 0:
                     return [row, col]
 
-
+#Calcs the # of 2-in-a-row that max has
 def count_two_in_rows_player(grid):
     global beginner_visit
     global advanced_visit
@@ -64,7 +66,7 @@ def count_two_in_rows_player(grid):
                             open_two_in_row_position.append([r + 1, c + 1])
     return open_two_in_row_position
 
-
+#Calcs the # of 2-in-a-row that min has
 def count_two_in_rows_opponent(grid):
     global beginner_visit
     global advanced_visit
@@ -101,7 +103,12 @@ def count_two_in_rows_opponent(grid):
                             open_two_in_row_position.append([r + 1, c + 1])
     return open_two_in_row_position
 
-
+#Takes in grid (dictionary -> key=(row,col), value= 1|0|-1)
+#returns:
+#       0 - no winner
+#       1 - min wins
+#      -1 - max wins
+# wins = 3 in a row 
 def check_win(grid):
     global beginner_visit
     global advanced_visit
@@ -170,13 +177,14 @@ def check_win(grid):
 
 
 
-
+#Function that returns min value from list
 def minimum_value(list):
     for i in range(len(list) - 1):
         if list[i] <= list[i + 1]:
             min = list[i]
             return min
-
+        
+#Function that returns max value from list
 def maximum_value(list):
     for i in range(len(list) - 1):
         if list[i][2] > list[i + 1][2]:
@@ -187,78 +195,105 @@ max_node1 = []
 count = 0
 
 
-
+#function which defines advance behavour
 def advanced(grid):
+    #var(s) she blows!
     global advanced_visit
     global beginner_visit
     global max_node1
     global count
     max_value = -10000
-    #for max part
+    
+    #Look ahead to 
     for row in range(1, 5):
         for col in range(1, 5):
-            #if cell is empty mark
+            #Check if cell is empty mark
             if grid[(row, col)] == 0:
                 grid[(row, col)] = -1
-                advanced_visit.append([row, col])
+                advanced_visit.append([row, col]) #add newly marked cell to list of visited
+                count += 1
+                #Check if next node is a terminal (winning) node
                 if check_win(grid) != 1:
-                #for min
+                #It is not a winning node
                     min_value = 10000
+                    #Look ahead to min's turn
                     for r in range(1, 5):
                         for c in range(1, 5):
+                            #Check if cell is empty 
                             if grid[(r, c)] == 0:
-                                grid[(r, c)] = -1
+                                grid[(r, c)] = -1 #mark it
                                 beginner_visit.append([r, c])
+                                count += 1
+                                #Check if next node is a terminal (winning) node
                                 if check_win(grid) != 1:
-                                    count += 1
+                                    #Calculate heuristic
                                     h = (len(count_two_in_rows_opponent(grid)) - len(count_two_in_rows_player(grid)))
+                                    #Check if new h value is less than former min
                                     min_value = min(h, min_value)
                                 else:
                                     min_value = -10000
-                                # print [r, c, min_value]
+
                                 grid[(r, c)] = 0
                                 beginner_visit.pop()
-                    # print([row, col])
+                    #Check if max value needs updating
                     if min_value >= max_value:
                         max_value = min_value
-                        # print([row, col])
                         max_node1 = [row, col]
-                    count += 1
+                    
                 else:
+                #it is a winning node
                     max_value = 10000
                     max_node1 = [row, col]
-                # print "@@@@@@@@@",[max_node1[0], max_node1[1], max_value]
                 grid[(row, col)] = 0
                 advanced_visit.pop()
 
     return max_value
 
-
+#Running beginner vs advanced
 def beginner_vs_advanced(grid):
     global advanced_visit
     global beginner_visit
+    global count
+    
     while check_win(grid) == 0:
-        [row, col] = beginner(grid)
+        start_time = time.time()
+        [row, col] = beginner(grid) #get turn played by beginner
+        stop_time = time.time()
+        
         print "beginner:", (row, col)
-        grid[(row, col)] = 1
+        print "execution time: %f ms"%(stop_time-start_time)
+        
+        grid[(row, col)] = 1 #play beginner's turn
         beginner_visit.append([row, col])
+        
+        #Check if beginner has won
         if check_win(grid) == 1:
             print "beginner wins"
             return
-        else:
+        else: #Beginner hasn't won
+            start_time = time.time()
             advanced(grid)
+            stop_time = time.time()
+            
+
             print "advanced:", (max_node1[0], max_node1[1])
+            print "execution time: %f ms"%((stop_time-start_time)*1000)
+            print "#of nodes expanded:%d"%count
+            count = 0
+            
             advanced_visit.append([max_node1[0], max_node1[1]])
             grid[(max_node1[0], max_node1[1])] = -1
+            
+            #Check if advanced has won
             if check_win(grid) == -1:
-                print "opponent wins"
+                print "advanced wins"
                 return
 
 
-
+#Start the storm
 beginner_vs_advanced(grid)
 
-print "the number of expand node is:", count
+
 
 
 
