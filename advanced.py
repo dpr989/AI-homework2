@@ -3,18 +3,17 @@ import random
 grid = {}
 for row in range(1,5):
     for column in range(1,5):
-        print(row, column)
         grid[(row, column)] = 0
 
 
 
-min_visit = []
-max_visit = []
+beginner_visit = []
+advanced_visit = []
 
 
 def beginner(grid):
-    global min_visit
-    global max_visit
+    global beginner_visit
+    global advanced_visit
     # print(len(count_two_in_rows_player(grid)))
     # print(len(count_two_in_rows_opponent(grid)))
     if len(count_two_in_rows_player(grid)) != 0:
@@ -29,16 +28,16 @@ def beginner(grid):
 
 
 def count_two_in_rows_player(grid):
-    global min_visit
-    global max_visit
+    global beginner_visit
+    global advanced_visit
     count = 0
     open_two_in_row_position = []
-    for [row, col] in min_visit:
+    for [row, col] in beginner_visit:
         for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1,
                                                                                                                col - 1], [
                                   row + 1, col], [row + 1, col + 1]:
-            if 1 <= row <= 4 and 1 <= col <= 4:
-                if [r, c] in min_visit:
+            if 1 <= r <= 4 and 1 <= c <= 4:
+                if [r, c] in beginner_visit:
                     if r == row - 1 and c == col - 1:
                         if 1 <= r - 1 <= 4 and 1 <= c - 1 <= 4 and grid[(r - 1, c - 1)] == 0:
                             open_two_in_row_position.append([r - 1, c - 1])
@@ -67,15 +66,15 @@ def count_two_in_rows_player(grid):
 
 
 def count_two_in_rows_opponent(grid):
-    global min_visit
-    global max_visit
+    global beginner_visit
+    global advanced_visit
     open_two_in_row_position = []
-    for [row, col] in max_visit:
+    for [row, col] in advanced_visit:
         for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1,
                                                                                                                col - 1], [
                                   row + 1, col], [row + 1, col + 1]:
-            if 1 <= row <= 4 and 1 <= col <= 4:
-                if [r, c] in max_visit:
+            if 1 <= r <= 4 and 1 <= c <= 4:
+                if [r, c] in advanced_visit:
                     if r == row - 1 and c == col - 1:
                         if 1 <= r - 1 <= 4 and 1 <= c - 1 <= 4 and grid[(r - 1, c - 1)] == 0:
                             open_two_in_row_position.append([r - 1, c - 1])
@@ -104,15 +103,15 @@ def count_two_in_rows_opponent(grid):
 
 
 def check_win(grid):
-    global min_visit
-    global max_visit
+    global beginner_visit
+    global advanced_visit
 
-    for [row, col] in max_visit:
+    for [row, col] in advanced_visit:
         for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1,
                                                                                                                col - 1], [
                                   row + 1, col], [row + 1, col + 1]:
-            if 1 <= row <= 4 and 1 <= col <= 4:
-                if [r, c] in max_visit:
+            if 1 <= r <= 4 and 1 <= c <= 4:
+                if [r, c] in advanced_visit:
                     if r == row - 1 and c == col - 1:
                         if 1 <= r - 1 <= 4 and 1 <= c - 1 <= 4 and grid[(r - 1, c - 1)] == -1:
                             return -1
@@ -137,12 +136,12 @@ def check_win(grid):
                     if r == row + 1 and c == col + 1:
                         if 1 <= r + 1 <= 4 and 1 <= c + 1 <= 4 and grid[(r + 1, c + 1)] == -1:
                             return -1
-    for [row, col] in min_visit:
+    for [row, col] in beginner_visit:
         for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1,
                                                                                                                col - 1], [
                                   row + 1, col], [row + 1, col + 1]:
-            if 1 <= row <= 4 and 1 <= col <= 4:
-                if [r, c] in min_visit:
+            if 1 <= r <= 4 and 1 <= c <= 4:
+                if [r, c] in beginner_visit:
                     if r == row - 1 and c == col - 1:
                         if 1 <= r - 1 <= 4 and 1 <= c - 1 <= 4 and grid[(r - 1, c - 1)] == 1:
                             return 1
@@ -184,54 +183,70 @@ def maximum_value(list):
             max = list[i]
             return max
 
-
+max_node1 = []
+count = 0
 
 def advanced(grid):
-    global max_visit
-    global min_visit
-    max_list = []
-    #for max
+    global advanced_visit
+    global beginner_visit
+    global max_node1
+    global count
+    max_value = -10000
+    #for max part
     for row in range(1, 5):
         for col in range(1, 5):
             if grid[(row, col)] == 0:
                 grid[(row, col)] = -1
-                max_visit.append([row, col])
-                min_list = []
+                advanced_visit.append([row, col])
+                if check_win(grid) != 1:
                 #for min
-                for r in range(1, 5):
-                    for c in range(1, 5):
-                        if grid[(r, c)] == 0:
-                            grid[(r, c)] = 1
-                            min_visit.append([r, c])
-                            h = (len(count_two_in_rows_opponent(grid)) - len(count_two_in_rows_player(grid)))
-                            min_list.append(h)
-                            grid[(r, c)] = 0
-                            min_visit.pop()
-
-                max_list.append([row, col, minimum_value(min_list)])
+                    min_value = 10000
+                    for r in range(1, 5):
+                        for c in range(1, 5):
+                            if grid[(r, c)] == 0:
+                                grid[(r, c)] = -1
+                                beginner_visit.append([r, c])
+                                if check_win(grid) != 1:
+                                    count += 1
+                                    h = (len(count_two_in_rows_opponent(grid)) - len(count_two_in_rows_player(grid)))
+                                    min_value = min(h, min_value)
+                                else:
+                                    min_value = -10000
+                                # print [r, c, min_value]
+                                grid[(r, c)] = 0
+                                beginner_visit.pop()
+                    # print([row, col])
+                    if min_value >= max_value:
+                        max_value = min_value
+                        # print([row, col])
+                        max_node1 = [row, col]
+                    count += 1
+                else:
+                    max_value = 10000
+                    max_node1 = [row, col]
+                # print "@@@@@@@@@",[max_node1[0], max_node1[1], max_value]
                 grid[(row, col)] = 0
-                max_visit.pop()
-    max = maximum_value(max_list)
-    return [max[0], max[1]]
+                advanced_visit.pop()
+
+    return max_value
 
 
 def beginner_vs_advanced(grid):
-    global max_visit
-    global min_visit
+    global advanced_visit
+    global beginner_visit
     while check_win(grid) == 0:
         [row, col] = beginner(grid)
         print "beginner:", (row, col)
         grid[(row, col)] = 1
-        min_visit.append([row, col])
-        print(min_visit)
+        beginner_visit.append([row, col])
         if check_win(grid) == 1:
             print "beginner wins"
             return
         else:
-            [r, c] = advanced(grid)
-            print "advanced:", (r, c)
-            max_visit.append([r, c])
-            grid[(r, c)] = -1
+            advanced(grid)
+            print "advanced:", (max_node1[0], max_node1[1])
+            advanced_visit.append([max_node1[0], max_node1[1]])
+            grid[(max_node1[0], max_node1[1])] = -1
             if check_win(grid) == -1:
                 print "opponent wins"
                 return
@@ -240,5 +255,5 @@ def beginner_vs_advanced(grid):
 
 beginner_vs_advanced(grid)
 
-
+print "the number of expand node is:", count
 

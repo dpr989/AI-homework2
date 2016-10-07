@@ -3,23 +3,20 @@ import random
 grid = {}
 for row in range(1,5):
     for column in range(1,5):
-        print(row, column)
         grid[(row, column)] = 0
 
 
 advanced_visit = []
 master_visit = []
 
-def count_two_in_rows_player(grid):
+def count_two_in_rows_advanced(grid):
     global advanced_visit
     global master_visit
     count = 0
     open_two_in_row_position = []
     for [row, col] in advanced_visit:
-        for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1,
-                                                                                                               col - 1], [
-                                  row + 1, col], [row + 1, col + 1]:
-            if 1 <= row <= 4 and 1 <= col <= 4:
+        for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1, col - 1], [row + 1, col], [row + 1, col + 1]:
+            if 1 <= r <= 4 and 1 <= c <= 4:
                 if [r, c] in advanced_visit:
                     if r == row - 1 and c == col - 1:
                         if 1 <= r - 1 <= 4 and 1 <= c - 1 <= 4 and grid[(r - 1, c - 1)] == 0:
@@ -48,7 +45,7 @@ def count_two_in_rows_player(grid):
     return open_two_in_row_position
 
 
-def count_two_in_rows_opponent(grid):
+def count_two_in_rows_master(grid):
     global advanced_visit
     global master_visit
     open_two_in_row_position = []
@@ -56,7 +53,7 @@ def count_two_in_rows_opponent(grid):
         for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1,
                                                                                                                col - 1], [
                                   row + 1, col], [row + 1, col + 1]:
-            if 1 <= row <= 4 and 1 <= col <= 4:
+            if 1 <= r <= 4 and 1 <= c <= 4:
                 if [r, c] in master_visit:
                     if r == row - 1 and c == col - 1:
                         if 1 <= r - 1 <= 4 and 1 <= c - 1 <= 4 and grid[(r - 1, c - 1)] == 0:
@@ -94,7 +91,7 @@ def check_win(grid):
         for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1,
                                                                                                                col - 1], [
                                   row + 1, col], [row + 1, col + 1]:
-            if 1 <= row <= 4 and 1 <= col <= 4:
+            if 1 <= r <= 4 and 1 <= c <= 4:
                 if [r, c] in master_visit:
                     if r == row - 1 and c == col - 1:
                         if 1 <= r - 1 <= 4 and 1 <= c - 1 <= 4 and grid[(r - 1, c - 1)] == -1:
@@ -124,7 +121,7 @@ def check_win(grid):
         for [r, c] in [row - 1, col - 1], [row - 1, col], [row - 1, col + 1], [row, col - 1], [row, col + 1], [row + 1,
                                                                                                                col - 1], [
                                   row + 1, col], [row + 1, col + 1]:
-            if 1 <= row <= 4 and 1 <= col <= 4:
+            if 1 <= r <= 4 and 1 <= c <= 4:
                 if [r, c] in advanced_visit:
                     if r == row - 1 and c == col - 1:
                         if 1 <= r - 1 <= 4 and 1 <= c - 1 <= 4 and grid[(r - 1, c - 1)] == 1:
@@ -181,6 +178,48 @@ def maximum_value(list):
     return max
 
 
+
+max_node1 = []
+
+def advanced(grid):
+    global advanced_visit
+    global master_visit
+    global max_node1
+    max_value = -10000
+    #for max
+    for row in range(1, 5):
+        for col in range(1, 5):
+            if grid[(row, col)] == 0:
+                grid[(row, col)] = 1
+                advanced_visit.append([row, col])
+                if check_win(grid) != 1:
+                #for min
+                    min_value = 10000
+                    for r in range(1, 5):
+                        for c in range(1, 5):
+                            if grid[(r, c)] == 0:
+                                grid[(r, c)] = -1
+                                master_visit.append([r, c])
+                                if check_win(grid) != -1:
+                                    h = (len(count_two_in_rows_advanced(grid)) - len(count_two_in_rows_master(grid)))
+                                    min_value = min(h, min_value)
+                                else:
+                                    min_value = -10000
+
+                                grid[(r, c)] = 0
+                                master_visit.pop()
+
+                    if min_value >= max_value:
+                        max_value = min_value
+                        max_node1 = [row, col]
+                else:
+                    max_value = 10000
+                    max_node1 = [row, col]
+                grid[(row, col)] = 0
+                advanced_visit.pop()
+
+    return max_value
+
 # def advanced(grid):
 #     global advanced_visit
 #     global master_visit
@@ -199,85 +238,70 @@ def maximum_value(list):
 #                             grid[(r, c)] = -1
 #                             master_visit.append([r, c])
 #                             h = (len(count_two_in_rows_player(grid)) - len(count_two_in_rows_opponent(grid)))
-#                             min_list.append(h)
+#                             # print([r, c, h])
+#                             min_list.append([r, c, h])
 #                             grid[(r, c)] = 0
 #                             master_visit.pop()
-#                 max_list.append([row, col, minimum_value(min_list)])
+#                 min = minimum_value(min_list)
+#                 # print "minimum", minimum_value(min_list)
+#                 max_list.append([row, col, min[2]])
 #                 grid[(row, col)] = 0
 #                 advanced_visit.pop()
 #     max = maximum_value(max_list)
-#     return [max[0], max[1]]
+#     # print "!!!!!!!!!!!!!!!***************", max
+#     return max
 
-def advanced(grid):
+
+
+max_node = []
+
+def master(grid, depth):
     global advanced_visit
     global master_visit
-    max_list = []
-    #for max
-    for row in range(1, 5):
-        for col in range(1, 5):
-            if grid[(row, col)] == 0:
-                grid[(row, col)] = 1
-                advanced_visit.append([row, col])
-                min_list = []
-                #for min
-                for r in range(1, 5):
-                    for c in range(1, 5):
-                        if grid[(r, c)] == 0:
-                            grid[(r, c)] = -1
-                            master_visit.append([r, c])
-                            h = (len(count_two_in_rows_player(grid)) - len(count_two_in_rows_opponent(grid)))
-                            min_list.append([r, c, h])
-                            grid[(r, c)] = 0
-                            master_visit.pop()
-                max_list.append([row, col, minimum_value(min_list)])
-                grid[(row, col)] = 0
-                advanced_visit.pop()
-    max = maximum_value(max_list)
-    return max
-
-
-
-
-def master(grid,depth,x,y):
-    global advanced_visit
-    global master_visit
-    max_list = []
+    global max_node
     if depth == 0:
-        return [x, y, len(count_two_in_rows_opponent(grid)) - len(count_two_in_rows_player(grid))]
+        return len(count_two_in_rows_master(grid)) - len(count_two_in_rows_advanced(grid))
     else:
-    # while(depth > 0):
-    #for advanced
+        max_value = -10000
         for row in range(1, 5):
             for col in range(1, 5):
                 if grid[(row, col)] == 0:
                     grid[(row, col)] = -1
                     master_visit.append([row, col])
-                    min_list = []
-                    #for min
-                    for r in range(1, 5):
-                        for c in range(1, 5):
-                            if grid[(r, c)] == 0:
-                                grid[(r, c)] = 1
-                                advanced_visit.append([r, c])
-                                h = master(grid, depth - 1, r, c)
-                                # print([r, c, h])
 
-                                min_list.append(h)
+                    if check_win(grid) != -1:
+                        min_value = 10000
+                        #for min
+                        for r in range(1, 5):
+                            for c in range(1, 5):
+                                if grid[(r, c)] == 0:
+                                    grid[(r, c)] = 1
+                                    advanced_visit.append([r, c])
+                                    if check_win(grid) != 1:
+                                        h = master(grid, depth - 1)
+                                        # print([r, c, h])
 
-                                grid[(r, c)] = 0
-                                advanced_visit.pop()
+                                        min_value = min(h, min_value)
+                                    else:
+                                        min_value = -10000
+                                    # if depth == 1:
+                                        # print
+                                    grid[(r, c)] = 0
+                                    advanced_visit.pop()
 
-                    max_list.append([row, col, minimum_value(min_list)])
+
+                        if min_value >= max_value:
+                            max_value = min_value
+                            # if depth == 2:
+                            max_node = [row, col]
+                        # if depth == 2:
+                            # print [max_node[0], max_node[1], max_value]
+                    else:
+                        max_value = 10000
+                        max_node = [row, col]
                     grid[(row, col)] = 0
                     master_visit.pop()
-
-                    print "*******************"
-                    print "!!!!!!!!!!!", [row, col, minimum_value(min_list)]
-        max = maximum_value(max_list)
-        if len(max_list) != 0:
-            max_list.pop()
-        print "%%%%%%%%", max
-    return max
+    return max_value
 
 
 
@@ -321,11 +345,13 @@ def master(grid,depth,x,y):
 #
 #
 #                                         min = minimum_value(min_list2)
+#                                         # print "@@@@@@@@@@", min
 #                                         max_list2.append([x, y, min[2]])
 #                                         grid[(x, y)] = 0
 #                                         master_visit.pop()
 #
 #                             max = maximum_value(max_list2)
+#                             # print "!!!!!!!!!!!!!!!!!", max
 #                             min_list1.append([r, c, max[2]])
 #                             grid[(r, c)] = 0
 #                             advanced_visit.pop()
@@ -349,46 +375,46 @@ def advanced_vs_master(grid):
     global master_visit
 
     while check_win(grid) == 0:
-        [row, col, h] = advanced(grid)
+        advanced(grid)
         # print advanced(grid)
-        print "advanced:", (row, col)
-        grid[(row, col)] = 1
-        advanced_visit.append([row, col])
+        print "advanced:", (max_node1[0], max_node1[1])
+        grid[(max_node1[0], max_node1[1])] = 1
+        advanced_visit.append([max_node1[0], max_node1[1]])
         if check_win(grid) == 1:
             print "advanced wins"
             return
         else:
-            [r, c, h] = master(grid)
-            print "master:", (r, c)
-            master_visit.append([r, c])
-            grid[(r, c)] = -1
+            master(grid,2)
+            print "master:", (max_node[0], max_node[1])
+            master_visit.append([max_node[0], max_node[1]])
+            grid[(max_node[0], max_node[1])] = -1
             if check_win(grid) == -1:
                 print "master wins"
                 return
 
 
 
-# def master_vs_advanced(grid):
-#     global advanced_visit
-#     global master_visit
-#
-#     while check_win(grid) == 0:
-#         [r, c] = master(grid, 2)
-#         print "master:", (r, c)
-#         master_visit.append([r, c])
-#         grid[(r, c)] = -1
-#         if check_win(grid) == -1:
-#             print "master wins"
-#             return
-#         else:
-#             [row, col] = advanced(grid)
-#             # print advanced(grid)
-#             print "advanced:", (row, col)
-#             grid[(row, col)] = 1
-#             advanced_visit.append([row, col])
-#             if check_win(grid) == 1:
-#                 print "advanced wins"
-#                 return
+def master_vs_advanced(grid):
+    global advanced_visit
+    global master_visit
+
+    while check_win(grid) == 0:
+        master(grid, 2)
+        print "master:", (max_node[0], max_node[1])
+        master_visit.append([max_node[0], max_node[1]])
+        grid[(max_node[0], max_node[1])] = -1
+        if check_win(grid) == -1:
+            print "master wins"
+            return
+        else:
+            advanced(grid)
+            # print advanced(grid)
+            print "advanced:", (max_node1[0], max_node1[1])
+            grid[(max_node1[0], max_node1[1])] = 1
+            advanced_visit.append([max_node1[0], max_node1[1]])
+            if check_win(grid) == 1:
+                print "advanced wins"
+                return
 
 
 advanced_vs_master(grid)
