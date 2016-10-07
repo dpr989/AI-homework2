@@ -256,12 +256,10 @@ def beginner_vs_advanced(grid):
     global count
     
     while check_win(grid) == 0:
-        start_time = time.time()
+        #Beginner should take a turn
         [row, col] = beginner(grid) #get turn played by beginner
-        stop_time = time.time()
         
         print "beginner:", (row, col)
-        print "execution time: %f ms"%(stop_time-start_time)
         
         grid[(row, col)] = 1 #play beginner's turn
         beginner_visit.append([row, col])
@@ -271,14 +269,15 @@ def beginner_vs_advanced(grid):
             print "beginner wins"
             return
         else: #Beginner hasn't won
+            #Advanced should take a turn
             start_time = time.time()
             advanced(grid)
             stop_time = time.time()
             
 
             print "advanced:", (max_node1[0], max_node1[1])
-            print "execution time: %f ms"%((stop_time-start_time)*1000)
-            print "#of nodes expanded:%d"%count
+            print "\texecution time: %f ms"%((stop_time-start_time)*1000)
+            print "\t#of nodes expanded:%d"%count
             count = 0
             
             advanced_visit.append([max_node1[0], max_node1[1]])
